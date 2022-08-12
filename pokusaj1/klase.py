@@ -117,4 +117,14 @@ class ComplexFunction(Function):
             return "Something is wrong"
 
     def ViewF(self):
-        return self.f1.ViewF() + " " + self.op + " " + self.f2.ViewF()
+        return "("+self.f1.ViewF() + ") " + self.op + " (" + self.f2.ViewF() + ")"
+
+    def ChangeF1(self, f):
+        self.f1 = f
+
+    def ChangeF2(self, f):
+        self.f2 = f
+
+    def ChangeOp(self, op):
+        self.op = op
+

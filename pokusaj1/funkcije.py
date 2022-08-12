@@ -87,8 +87,6 @@ def izaberi_jednog_roditelja(fitness_podaci):
         print("noooooo")
     return
 
-
-
     max = sum([c.fitness for c in populacija])
     selection_probs = [c.fitness/max for c in populacija]
     return population[npr.choice(len(populacija), p=selection_probs)]
