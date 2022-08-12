@@ -128,3 +128,15 @@ class ComplexFunction(Function):
     def ChangeOp(self, op):
         self.op = op
 
+    def GetDepth(self):
+        f1 = self.f1
+        f2 = self.f2
+        suma1 = 1
+        suma2 = 1
+        if type(f1) == type(ComplexFunction(1,1,1)):
+            suma1 += f1.GetDepth()
+
+        if type(f2) == type(ComplexFunction(1, 1, 1)) :
+            suma2 += f2.GetDepth()
+
+        return max(suma1, suma2)

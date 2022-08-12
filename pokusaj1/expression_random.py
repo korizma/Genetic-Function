@@ -60,5 +60,9 @@ def generisi_random_funkciju_tree(dubina):
     return  glavna
 
 
-for x in range(100):
-    print(generisi_random_funkciju_tree(7).ViewF())
+for x in range(1000000):
+    m = generisi_random_funkciju_tree(7)
+    print(m.ViewF())
+    if (m.GetDepth() > 8):
+        print("uzasssss")
+        break
