@@ -2,6 +2,11 @@ import math
 import random
 import klase
 import funkcije as f
+import time
+
+p = 0.8     #pocetna verovatnoca za grananje u half half algoritmu
+q = 0.9     #procentaza opada verovatnoce za grananje half half algoritmu
+sansa_pom = p / q
 
 def generisi_random_op():
     op_broj = random.randint(0,4)
@@ -39,19 +44,24 @@ def generisi_random_funkciju():
         return  klase.Trygonometry("ctg")
 
 def generisi_random_funkciju_tree(dubina):
+    global p, q, sansa_pom
+
+    sansa_pom *= q
+
     glavna = klase.ComplexFunction(1, 1, generisi_random_op())
-    if dubina > 0:
-        nastavlja_se = True
+
     if dubina == 0:
         nastavlja_se = False
+    else:
+        nastavlja_se = True
 
-    if random.uniform(0,1) < 0.5 and nastavlja_se:
+    if random.uniform(0,1) < sansa_pom and nastavlja_se:
         glavna.ChangeF1(generisi_random_funkciju_tree(dubina-1))
         nastavlja_se = True
     else:
         glavna.ChangeF1(generisi_random_funkciju())
 
-    if random.uniform(0,1) < 0.5 and nastavlja_se:
+    if random.uniform(0,1) < sansa_pom and nastavlja_se:
         glavna.ChangeF2(generisi_random_funkciju_tree(dubina-1))
         nastavlja_se = True
     else:
@@ -72,26 +82,39 @@ for x in range(1000000):
 
 #broj nodudova mora biti neparan
 def generisi_dyck_word(num_nodes):
-    l = int((num_nodes - 1) / 2)
-    rs = (num_nodes + 1) / 2
+    br_y = int((num_nodes - 3) / 2)
+    br_x = num_nodes - 3
 
-    cn = math.factorial(num_nodes-1) / (math.factorial(l) * math.factorial(rs))
+    pre = "xx"
+    post = "xyy"
 
-    print("broj razlicitih struktura tree-a: " + str(cn))
 
-    prosla_pos = 2
 
-    yy_pozicije = [False for x in range(num_nodes)]
-    for i in range(l):
-        yy_pos = random.randint(prosla_pos+1, num_nodes - l + i)
-        prosla_pos = yy_pos
-        yy_pozicije[yy_pos] = True
+    lista_mesta_yy = [False for i in range(br_x)]
+    proslo = -1
+    stek = 2
+    preskace = 0
 
-    word = ""
-    for pozicija in yy_pozicije:
+    for a in range(1, br_y+1):
+        if stek >= 2:
+            preskace = 0
+        else:
+            preskace = 2 - stek
+
+        mesto = random.randint(proslo + 1 + preskace, br_x - (br_y - a))
+        lista_mesta_yy[mesto] = True
+        stek -= 2
+
+        stek += mesto - proslo - 1
+        proslo = mesto
+
+
+    word = pre
+    for tu_je in lista_mesta_yy:
         word += "x"
-        if pozicija:
+        if tu_je:
             word += "yy"
+
     return word
 
 #pretvaranje dyck reci u tree
@@ -122,8 +145,6 @@ def napravi_stablo(word):
 
     print(non_terminal.ViewF())
 
-
-
-word = generisi_dyck_word(9)
-print(word)
-napravi_stablo(word)
+for i in range(10):
+    word = generisi_dyck_word(9)
+    print("rec: " + word + ", duzina reci: " + str(len(word)))
