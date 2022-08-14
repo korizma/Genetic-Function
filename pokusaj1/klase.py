@@ -128,10 +128,10 @@ class ComplexFunction(Function):
             return "Something is wrong"
 
     def ViewF(self):
-        if op == "o":
-            izgled_f1 = f1.ViewF()
-            izgled_f1 = izgled_f1[0:len(izgled_f1-2)]
-            return izgled_f1 + "(" + f2.ViewF() + ")"
+        if self.op == "o":
+            izgled_f1 = self.f1.ViewF()
+            izgled_f1 = izgled_f1[0:len(izgled_f1)-2]
+            return izgled_f1 + "(" + self.f2.ViewF() + ")"
         else:
             return "("+self.f1.ViewF() + ") " + self.op + " (" + self.f2.ViewF() + ")"
 
