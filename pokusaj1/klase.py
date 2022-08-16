@@ -14,6 +14,9 @@ class Function:
         self.depth = 0
         return self.depth
 
+    def NodesBelow(self):
+        return 0
+
 class Constant(Function):
     def __init__(self, constant):
         self.constant = round(constant,3)
@@ -156,3 +159,6 @@ class ComplexFunction(Function):
         return self.f1
     def F2(self):
         return self.f2
+
+    def NodesBelow(self):
+        return self.f1.NodesBelow() + self.f2.NodesBelow() + 2
