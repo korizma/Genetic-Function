@@ -4,12 +4,9 @@ import klase
 import funkcije as f
 import time
 
-p = 0.8     #pocetna verovatnoca za grananje u half half algoritmu
-q = 0.9     #procentaza opada verovatnoce za grananje half half algoritmu
-sansa_pom = p / q
+p = 0.5
 
-verovatnoce_za_operacije = [0.2, 0.2, 0.2, 0.2, 0.2]            #+ - * / o
-verovatnoce_za_funkcije = [0.3, 0.14, 0.14, 0.14, 0.14, 0.14]   #konst variable log nroot exp trygon
+
 
 def generisi_random_op():
     op_broj = random.randint(0,4)
@@ -24,7 +21,7 @@ def generisi_random_op():
     return "o"
 
 def generisi_random_funkciju():
-    broj = random.randint(0, 7)
+    broj = random.randint(0, 6)
     if broj <= 2:
         return klase.Constant(f.random_broj())
     elif broj  <= 3:
@@ -33,8 +30,8 @@ def generisi_random_funkciju():
         return klase.Logarithm(f.random_broj())
     elif broj == 5:
         return klase.NRoot(f.random_broj())
-    elif broj == 6:
-        return klase.Exponential(f.random_broj())
+    # elif broj == 6:
+    #     return klase.Exponential(f.random_broj())
 
     broj = random.randint(0, 3)
     if broj == 0:
@@ -45,11 +42,10 @@ def generisi_random_funkciju():
         return  klase.Trygonometry("tg")
     elif broj == 3:
         return  klase.Trygonometry("ctg")
-
-def generisi_random_funkciju_tree(dubina):
-    global p, q, sansa_pom
-
-    sansa_pom *= q
+# ovo je grow metod
+def grow_metoda(dubina):
+    global p
+    dubina -= 1
 
     glavna = klase.ComplexFunction(1, 1, generisi_random_op())
 
@@ -58,29 +54,43 @@ def generisi_random_funkciju_tree(dubina):
     else:
         nastavlja_se = True
 
-    if random.uniform(0,1) < sansa_pom and nastavlja_se:
-        glavna.ChangeF1(generisi_random_funkciju_tree(dubina-1))
+    if random.uniform(0,1) < p and nastavlja_se:
+        glavna.ChangeF1(grow_metoda(dubina))
         nastavlja_se = True
     else:
         glavna.ChangeF1(generisi_random_funkciju())
 
-    if random.uniform(0,1) < sansa_pom and nastavlja_se:
-        glavna.ChangeF2(generisi_random_funkciju_tree(dubina-1))
+    if random.uniform(0,1) < p and nastavlja_se:
+        glavna.ChangeF2(grow_metoda(dubina))
         nastavlja_se = True
     else:
         glavna.ChangeF2(generisi_random_funkciju())
 
+    glavna.UpdateDepth()
+
     return  glavna
+# ovo je full metoda
+def full_metoda(dubina):
+
+    dubina -= 1
+
+    if dubina == 0:
+        nastavlja_se = False
+    else:
+        nastavlja_se = True
+
+    if nastavlja_se:
+        glavna = klase.ComplexFunction(full_metoda(dubina), full_metoda(dubina), generisi_random_op())
+    else:
+        glavna = klase.ComplexFunction(generisi_random_funkciju(), generisi_random_funkciju(), generisi_random_op())
+
+    glavna.UpdateDepth()
+
+    return glavna
+
+
 
 """
-for x in range(1000000):
-    m = generisi_random_funkciju_tree(7)
-    print(m.ViewF())
-    if (m.GetDepth() > 8):
-        print("uzasssss")
-        break
-   """
-
 #dyck word random tree
 
 #broj nodudova mora biti neparan
@@ -122,8 +132,29 @@ def generisi_dyck_word(num_nodes):
     word += post
     return word
 
-#pretvaranje dyck reci u tree
+def izracunaj_verovatnoce_za_odabir_mesta(br_mesta, br_y, stek, proslo_mesto):
+    global sume_dyck_words_combination
+    if br_y == 0:
+        return 1
 
+    if stek >= 2:
+        dodaj = 0
+    else:
+        dodaj = 1
+
+    suma = 0
+
+    for i in range (proslo_mesto + 1 + dodaj, br_mesta - br_y):
+        stek -= 1
+        stek += i - proslo_mesto - 1
+        suma += izracunaj_verovatnoce_za_odabir_mesta(br_mesta, br_y-1, stek, i)
+
+    return suma
+
+
+
+#ovo ispod je nepotrebno, necu koristiti
+#pretvaranje dyck reci u tree
 def napravi_terminali_node():
     return generisi_random_funkciju()
 def napravi_neterminalni_node(f1, f2):
@@ -147,10 +178,11 @@ def napravi_stablo(word):
             terminal = napravi_terminali_node()
             stek.append(terminal)
             i += 1
-    
+
     return non_terminal
 
 for i in range(50):
     word = generisi_dyck_word(9)
     stablo = napravi_stablo(word)
     print(stablo.ViewF())
+"""

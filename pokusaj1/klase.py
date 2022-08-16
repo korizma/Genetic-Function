@@ -1,4 +1,7 @@
 import math
+import funkcije as f
+
+granica = 10 ** 6
 
 class Function:
     def getValue(self, x):
@@ -7,11 +10,8 @@ class Function:
     def ViewF(self):
         return "a"
 
-    def Height(self):
-        return 0
-
-    def Depth(self, parent_depth):
-        self.depth = parent_depth + 1
+    def Depth(self):
+        self.depth = 0
         return self.depth
 
 class Constant(Function):
@@ -19,7 +19,7 @@ class Constant(Function):
         self.constant = round(constant,3)
 
     def getValue(self, x):
-        return self.constant
+        return f.clamp(self.constant, -granica, granica)
 
     def ViewF(self):
         return str(self.constant)
@@ -29,7 +29,7 @@ class Variable(Function):
         self.var = 1
 
     def getValue(self, x):
-        return x
+        return f.clamp(x, -granica, granica)
 
     def ViewF(self):
         return 'x'
@@ -40,8 +40,8 @@ class Logarithm(Function):
 
     def getValue(self, x):
         if x <= 0 or self.base <= 0 or self.base == 1:
-            return NaN
-        return math.log(x, self.base)
+            return float('NaN')
+        return f.clamp(math.log(x, self.base), -granica, granica)
 
     def ViewF(self):
         return "log base: " + str(self.base) + " function: x"
@@ -52,10 +52,10 @@ class Exponential(Function):
 
     def getValue(self, x):
         if x < 0:
-            return NaN
+            return float('NaN')
         if x == 0 and self.base == 0:
-            return NaN
-        return self.base ** x
+            return float('NaN')
+        return f.clamp(self.base ** x, -granica, granica)
 
     def ViewF(self):
         return str(self.base) + " to the power of: x"
@@ -66,10 +66,11 @@ class NRoot(Function):
 
     def getValue(self, x):
         if self.nroot % 2 == 0 and x < 0:
-            return NaN
+            return float('NaN')
         if self.nroot == 0:
-            return NaN
-        return x ** (1/self.nroot)
+            return float('NaN')
+        return f.clamp(x ** (1/self.nroot), -granica, granica)
+
 
     def ViewF(self):
         return "the " + str(self.nroot) + " root of x"
@@ -85,12 +86,12 @@ class Trygonometry(Function):
             return math.cos(x)
         elif self.type == 'tg':
             if math.cos(x) == 0:
-                return NaN
-            return math.tan(x)
+                return float('NaN')
+            return f.clamp(math.tan(x), -granica, granica)
         elif self.type == 'ctg':
             if math.sin(x) == 0:
-                return NaN
-            return math.cos(x)/math.sin(x)
+                return float('NaN')
+            return f.clamp(math.cos(x)/math.sin(x), -granica, granica)
         else:
             return "Undefined Type"
 
@@ -102,28 +103,29 @@ class ComplexFunction(Function):
         self.f1 = f1
         self.f2 = f2
         self.op = op
+        self.depth = -1
     def getValue(self, x):
         op = self.op
         f1 = self.f1
         f2 = self.f2
         if op == 'o':
-            if f2.getValue(x) == NaN:
-                return Nan
+            if math.isnan(f2.getValue(x)):
+                return float('NaN')
             else:
-                return f1.getValue(f2.getValue(x))
+                return f.clamp(f1.getValue(f2.getValue(x)), -granica, granica)
 
-        if f1.getValue(x) == NaN or f2.getValue(x) == NaN:
-            return NaN
+        if math.isnan(f1.getValue(x)) or math.isnan(f2.getValue(x)):
+            return float('NaN')
         if op == '+':
-            return f1.getValue(x) + f2.getValue(x)
+            return f.clamp(f1.getValue(x) + f2.getValue(x), -granica, granica)
         elif op == '-':
-            return f1.getValue(x) - f2.getValue(x)
+            return f.clamp(f1.getValue(x) - f2.getValue(x), -granica, granica)
         elif op == '*':
-            return f1.getValue(x) * f2.getValue(x)
+            return f.clamp(f1.getValue(x) * f2.getValue(x), -granica, granica)
         elif op == '/':
             if f2.getValue(x) == 0:
-                return NaN
-            return f1.getValue(x) / f2.getValue(x)
+                return float('NaN')
+            return f.clamp(f1.getValue(x) / f2.getValue(x), -granica, granica)
         else:
             return "Something is wrong"
 
@@ -144,10 +146,13 @@ class ComplexFunction(Function):
     def ChangeOp(self, op):
         self.op = op
 
-    def Height(self):
-        self.height = max(f1.Height(), f2.Height())
-        return self.height
+    def Depth(self):
+        return self.depth
 
-    def Depth(self, tree_depth):
-        self.depth = tree_depth - self.height
-        self.f1.Depth(tree_depth - 1)
+    def UpdateDepth(self):
+        self.depth = max(self.f1.Depth(), self.f2.Depth()) + 1
+
+    def F1(self):
+        return self.f1
+    def F2(self):
+        return self.f2

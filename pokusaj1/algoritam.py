@@ -12,14 +12,12 @@ var = klase.Trygonometry("sin")
 kompleksna = klase.ComplexFunction(konstanta, var, '*')
 
 grafik = []
-for x in range (-100, 100):
+for x in range (-1000, 1000):
     grafik.append([x, kompleksna.getValue(x)])
 
-populacija = f.inicijacija_populacije()
+populacija = f.populacija_half_half()
 
-while generacija == 1 or najbolji_specimen >= 0:
-    print("Generacija: " + str(generacija))
-    fitness_podaci = f.izracunaj_fitness(populacija, grafik)
-    f.izaberi_jednog_roditelja(fitness_podaci)
-    break
+for i in populacija:
+        print(i.ViewF())
+
 
