@@ -3,10 +3,9 @@ import random
 import klase
 import funkcije as f
 import time
+import parametri
 
-p = 0.5
-
-
+p = parametri.grow_vrv()
 
 def generisi_random_op():
     op_broj = random.randint(0,4)
@@ -21,7 +20,7 @@ def generisi_random_op():
     return "o"
 
 def generisi_random_funkciju():
-    broj = random.randint(0, 6)
+    broj = random.randint(0, 7)
     if broj <= 2:
         return klase.Constant(f.random_broj())
     elif broj  <= 3:
@@ -30,8 +29,8 @@ def generisi_random_funkciju():
         return klase.Logarithm(f.random_broj())
     elif broj == 5:
         return klase.NRoot(f.random_broj())
-    # elif broj == 6:
-    #     return klase.Exponential(f.random_broj())
+    elif broj == 6:
+        return klase.Exponential(f.random_broj())
 
     broj = random.randint(0, 3)
     if broj == 0:
@@ -42,6 +41,7 @@ def generisi_random_funkciju():
         return  klase.Trygonometry("tg")
     elif broj == 3:
         return  klase.Trygonometry("ctg")
+
 # ovo je grow metod
 def grow_metoda(dubina):
     global p
@@ -67,8 +67,10 @@ def grow_metoda(dubina):
         glavna.ChangeF2(generisi_random_funkciju())
 
     glavna.UpdateDepth()
+    glavna.UpdateNodesBelow()
 
     return  glavna
+
 # ovo je full metoda
 def full_metoda(dubina):
 
@@ -85,6 +87,7 @@ def full_metoda(dubina):
         glavna = klase.ComplexFunction(generisi_random_funkciju(), generisi_random_funkciju(), generisi_random_op())
 
     glavna.UpdateDepth()
+    glavna.UpdateNodesBelow()
 
     return glavna
 

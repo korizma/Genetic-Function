@@ -1,7 +1,9 @@
 import math
 import funkcije as f
+import parametri
 
-granica = 10 ** 6
+granica = parametri.granica_klase()
+exp_granica = parametri.exp_granica_klase()
 
 class Function:
     def getValue(self, x):
@@ -58,6 +60,8 @@ class Exponential(Function):
             return float('NaN')
         if x == 0 and self.base == 0:
             return float('NaN')
+        if x > exp_granica:
+            x = exp_granica
         return f.clamp(self.base ** x, -granica, granica)
 
     def ViewF(self):
@@ -65,15 +69,17 @@ class Exponential(Function):
 
 class NRoot(Function):
     def __init__(self, nroot):
-        self.nroot = abs(int(nroot))
+        self.nroot = abs(int(nroot))+1
 
     def getValue(self, x):
-        if self.nroot % 2 == 0 and x < 0:
-            return float('NaN')
-        if self.nroot == 0:
-            return float('NaN')
-        return f.clamp(x ** (1/self.nroot), -granica, granica)
+        res = x ** (1 / self.nroot)
 
+        if type(res) == type(complex(1, 1)):
+            return float('NaN')
+        if math.isnan(res):
+            return float('NaN')
+
+        return f.clamp(res, -granica, granica)
 
     def ViewF(self):
         return "the " + str(self.nroot) + " root of x"
@@ -106,7 +112,8 @@ class ComplexFunction(Function):
         self.f1 = f1
         self.f2 = f2
         self.op = op
-        self.depth = -1
+        self.depth = 0
+        self.nodes_below = 0
     def getValue(self, x):
         op = self.op
         f1 = self.f1
@@ -159,6 +166,11 @@ class ComplexFunction(Function):
         return self.f1
     def F2(self):
         return self.f2
+    def Op(self):
+        return  self.op
 
     def NodesBelow(self):
-        return self.f1.NodesBelow() + self.f2.NodesBelow() + 2
+        return self.nodes_below
+
+    def UpdateNodesBelow(self):
+        self.nodes_below =  self.f1.NodesBelow() + self.f2.NodesBelow() + 2

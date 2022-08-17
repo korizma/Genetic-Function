@@ -5,21 +5,31 @@ import random
 import klase
 import numpy.random as npr
 import expression_random as er
+import parametri
 
 #parametri
-broj_funkcija = 10      #4 razlicitih tipova (40), 4 trigonometrijske i jedna promenljiva = 45 u populaciji
+velicina_populacije = parametri.velicina_populacije()
+max_dubina = parametri.max_dubina()
+
+povecanje = parametri.povecanje()
+na_koliko_tacaka = parametri.na_koliko_tacaka()
+
 donja_granica = -25
 gornja_granica = 25        #granice za random brojeve
-broj_specimena_koje_cuvamo = 10
 
 def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))
 
 def random_broj():
     global donja_granica, gornja_granica
-    return random.uniform(donja_granica, gornja_granica)
+    r = random.uniform(donja_granica, gornja_granica)
+    if r < 0 and r > -1:
+        return r - 1
+    if r > 0 and r < 1:
+        return r + 1
+    return r
 
-max_odstupanje = 500
+max_odstupanje = parametri.max_odstupanje()
 
 def fitness_odstupanje(funkcija, grafik):
     global max_odstupanje
@@ -31,6 +41,8 @@ def fitness_odstupanje(funkcija, grafik):
         dy = funkcija.getValue(x)
         if math.isnan(y) and math.isnan(dy):
             odstupanje = 0
+        elif math.isnan(y) and not math.isnan(dy):
+            odstupanje = max_odstupanje
         else:
             odstupanje = abs(dy - y)
 
@@ -42,8 +54,6 @@ def fitness_odstupanje(funkcija, grafik):
     skor = math.sqrt(skor / len(grafik))
     return skor
 
-povecanje = 2
-na_koliko_tacaka = 5
 
 # ovo nije gotovo
 def fitness_povecavanje(funkcija, grafik):
@@ -66,14 +76,12 @@ def fitness_povecavanje(funkcija, grafik):
         skor *= povecanje
     return skor
 
-velicina_populacije = 10
-max_dubina = 10
 
 def populacija_half_half():
     global velicina_populacije, max_dubina
     populacija = []
 
-    grow = int(velicina_populacije/2)
+    grow = int((velicina_populacije/5)*4)
     full = velicina_populacije - grow
     for i in range(0, grow):
         populacija.append(er.grow_metoda(max_dubina))
