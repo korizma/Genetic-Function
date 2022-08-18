@@ -9,6 +9,7 @@ import parametri
 import time
 
 max_dubina = parametri.max_dubina()
+mutacija_posto = parametri.mutacija_posto()
 
 def mutacija_rnd_tree(root, broj_koraka, max_depth_rnd_drveta):
     vf1 = root.F1().NodesBelow() + 1
@@ -36,6 +37,23 @@ def mutacija_rnd_tree(root, broj_koraka, max_depth_rnd_drveta):
         else:
             root.ChangeF2(er.generisi_random_funkciju())
 
+def mutacija_boljaaa_suii(root):
+    d = root.Depth()
+    br_k = int(rd.uniform(0, d)+1)
+    sve = vrati_random_node(root, br_k)
+    f = sve[0]
+    br_g = sve[1]
+
+    if br_g == 1:
+        f.ChangeF1(er.grow_metoda(d-br_k))
+    elif br_g == 2:
+        f.ChangeF2(er.grow_metoda(f.Depth()-1))
+
+    root.UpdateNodesBelow()
+    root.UpdateDepth()
+
+    return root
+
 def vrati_random_node(root, broj_koraka):
     vf1 = root.F1().NodesBelow() + 1
     vf2 = root.F2().NodesBelow() + 1
@@ -62,8 +80,20 @@ def vrati_random_node(root, broj_koraka):
 
 def crossover_drva(root1, root2):
     global max_dubina
-    pom1 = vrati_random_node(root1, rd.randint(1, root1.Depth()))
-    pom2 = vrati_random_node(root2, rd.randint(1, root2.Depth()))
+    d1 = root1.Depth()
+    d2 = root2.Depth()
+
+    if d1 < d2:
+        pom = root1
+        root1 = root2
+        root2 = pom
+        d1 = root1.Depth()
+        d2 = root2.Depth()
+
+    br1 = int(rd.uniform(d1-d2, root1.Depth())+1)
+    br2 = int(rd.uniform(d2-d1+br1, d2)+1)
+    pom1 = vrati_random_node(root1, br1)
+    pom2 = vrati_random_node(root2, br2)
 
     node1 = pom1[0]
     node2 = pom2[0]
@@ -75,38 +105,31 @@ def crossover_drva(root1, root2):
         node1.ChangeF1(node2.F1())
         node2.ChangeF1(pom)
 
-    if f1 == 2 and f2 == 1:
+    elif f1 == 2 and f2 == 1:
         pom = node1.F2()
         node1.ChangeF2(node2.F1())
         node2.ChangeF1(pom)
 
-    if f1 == 1 and f2 == 2:
+    elif f1 == 1 and f2 == 2:
         pom = node1.F1()
         node1.ChangeF1(node2.F2())
         node2.ChangeF2(pom)
 
-    if f1 == 2 and f2 == 2:
+    elif f1 == 2 and f2 == 2:
         pom = node1.F2()
         node1.ChangeF2(node2.F2())
         node2.ChangeF2(pom)
 
+    root1.UpdateDepth()
+    root2.UpdateDepth()
+    root1.UpdateNodesBelow()
+    root2.UpdateNodesBelow()
 
-    ret = []
-    if root1.Depth() <= max_dubina:
-        ret.append(root1)
-        root1.UpdateDepth()
-        root1.UpdateNodesBelow()
-
-    if root2.Depth() <= max_dubina:
-        ret.append(root2)
-        root2.UpdateDepth()
-        root2.UpdateNodesBelow()
-
-    return ret
+    return [root1, root2]
 
 def rulet_mutacija_crossover(ftns, broj_jedinki):
     new_pop = []
-    br_m = int(broj_jedinki/2)
+    br_m = int(broj_jedinki*mutacija_posto)
     br_c = broj_jedinki - br_m
 
     suma = sum((max_dubina/i) for i in ftns["fitness"])
@@ -114,7 +137,7 @@ def rulet_mutacija_crossover(ftns, broj_jedinki):
     start = time.time()
     for i in range(br_m):
         tree = random_index_wheel(ftns, suma)     #dasdasdasdsa
-        mutacija_rnd_tree(tree, rd.randint(1, tree.Depth()), max_dubina)
+        tree = mutacija_boljaaa_suii(tree)
         new_pop.append(tree)
 
     print("mutiranje je trajalo: " + str(time.time() - start) + "s")
@@ -136,7 +159,6 @@ def rulet_mutacija_crossover(ftns, broj_jedinki):
     print("crossover je trajao: " + str(time.time() - start) + "s")
     return new_pop[0:broj_jedinki]
 
-
 def random_index_wheel(ftns, s):
     r = rd.uniform(0,s)
     rx = 0
@@ -146,21 +168,3 @@ def random_index_wheel(ftns, s):
             fff = ftns['func'][i]
             return fff
 
-
-"""t1 = er.grow_metoda(4)
-t2 = er.grow_metoda(4)
-
-print(t1.ViewF())
-print(t2.ViewF())
-
-dt1 = copy.deepcopy(t1)
-dt2 = copy.deepcopy(t2)
-
-sve = crossover_drva(dt1, dt2)
-
-print(t1.ViewF())
-print(t2.ViewF())
-print()
-
-for i in sve:
-    print(i.ViewF())"""

@@ -7,15 +7,22 @@ import numpy.random as npr
 import expression_random as er
 import parametri
 
+# <editor-fold desc="Parametri">
 #parametri
 velicina_populacije = parametri.velicina_populacije()
 max_dubina = parametri.max_dubina()
 
+posto_grow_populacije = parametri.posto_grow_populacije()
+
 povecanje = parametri.povecanje()
 na_koliko_tacaka = parametri.na_koliko_tacaka()
 
+
+max_odstupanje = parametri.max_odstupanje()
+
 donja_granica = -25
 gornja_granica = 25        #granice za random brojeve
+# </editor-fold>
 
 def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))
@@ -29,8 +36,6 @@ def random_broj():
         return r + 1
     return r
 
-max_odstupanje = parametri.max_odstupanje()
-
 def fitness_odstupanje(funkcija, grafik):
     global max_odstupanje
     skor = 0
@@ -39,21 +44,22 @@ def fitness_odstupanje(funkcija, grafik):
         x = tacka[0]
         y = tacka[1]
         dy = funkcija.getValue(x)
+
+        odstupanje = abs(dy - y)
+
         if math.isnan(y) and math.isnan(dy):
             odstupanje = 0
+
         elif math.isnan(y) and not math.isnan(dy):
             odstupanje = max_odstupanje
-        else:
-            odstupanje = abs(dy - y)
 
-            if math.isnan(dy) or odstupanje > max_odstupanje:
-                odstupanje = max_odstupanje
+        elif math.isnan(dy) or odstupanje > max_odstupanje:
+            odstupanje = max_odstupanje
 
         skor += odstupanje ** 2
 
     skor = math.sqrt(skor / len(grafik))
     return skor
-
 
 # ovo nije gotovo
 def fitness_povecavanje(funkcija, grafik):
@@ -66,7 +72,9 @@ def fitness_povecavanje(funkcija, grafik):
         x = tacka[0]
         y = tacka[1]
         dy = funkcija.getValue(x)
-        if math.isnan(dy):
+        if math.isnan(dy) and math.isnan(y):
+            skor += 0
+        elif math.isnan(dy) and not math.isnan(y):
             br_nana += 1
         else:
             skor += abs(dy - y) ** 2
@@ -76,17 +84,25 @@ def fitness_povecavanje(funkcija, grafik):
         skor *= povecanje
     return skor
 
-
 def populacija_half_half():
-    global velicina_populacije, max_dubina
+    global velicina_populacije, max_dubina, posto_grow_populacije
     populacija = []
 
-    grow = int((velicina_populacije/5)*4)
+    grow = int(velicina_populacije*posto_grow_populacije)
     full = velicina_populacije - grow
     for i in range(0, grow):
-        populacija.append(er.grow_metoda(max_dubina))
+        f = er.grow_metoda(max_dubina)
+        populacija.append(f)
+
+        f.UpdateDepth()
+        f.UpdateNodesBelow()
+
     for i in range(0, full):
-        populacija.append(er.full_metoda(random.randint(1, max_dubina)))
+        f = er.full_metoda(random.randint(1, max_dubina))
+        populacija.append(f)
+
+        f.UpdateDepth()
+        f.UpdateNodesBelow()
 
     return populacija
 

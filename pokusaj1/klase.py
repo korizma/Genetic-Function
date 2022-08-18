@@ -19,6 +19,11 @@ class Function:
     def NodesBelow(self):
         return 0
 
+    def UpdateDepth(self):
+        return 0
+    def UpdateNodesBelow(self):
+        return 0
+
 class Constant(Function):
     def __init__(self, constant):
         self.constant = round(constant,3)
@@ -58,10 +63,13 @@ class Exponential(Function):
     def getValue(self, x):
         if x < 0:
             return float('NaN')
-        if x == 0 and self.base == 0:
+
+        elif x == 0 and self.base == 0:
             return float('NaN')
+
         if x > exp_granica:
             x = exp_granica
+
         return f.clamp(self.base ** x, -granica, granica)
 
     def ViewF(self):
@@ -89,20 +97,26 @@ class Trygonometry(Function):
         self.type = type
 
     def getValue(self, x):
+        if math.isnan(x):
+            return x
         if self.type == 'sin':
+            x = x % (2*math.pi)
             return math.sin(x)
         elif self.type == 'cos':
+            x = x % (2*math.pi)
             return math.cos(x)
         elif self.type == 'tg':
+            x = x % (math.pi)
             if math.cos(x) == 0:
                 return float('NaN')
             return f.clamp(math.tan(x), -granica, granica)
         elif self.type == 'ctg':
+            x = x % (math.pi)
             if math.sin(x) == 0:
                 return float('NaN')
             return f.clamp(math.cos(x)/math.sin(x), -granica, granica)
         else:
-            return "Undefined Type"
+            return float('NaN')
 
     def ViewF(self):
         return self.type + "x"
@@ -137,15 +151,17 @@ class ComplexFunction(Function):
                 return float('NaN')
             return f.clamp(f1.getValue(x) / f2.getValue(x), -granica, granica)
         else:
-            return "Something is wrong"
+            return float('NaN')
 
     def ViewF(self):
         if self.op == "o":
             izgled_f1 = self.f1.ViewF()
-            izgled_f1 = izgled_f1[0:len(izgled_f1)-2]
+            izgled_f1 = izgled_f1[:-1]
+            if izgled_f1 == ")":
+                return "("+self.f1.ViewF() + "" + self.op + "" + self.f2.ViewF() + ")"
             return izgled_f1 + "(" + self.f2.ViewF() + ")"
         else:
-            return "("+self.f1.ViewF() + ") " + self.op + " (" + self.f2.ViewF() + ")"
+            return "("+self.f1.ViewF() + "" + self.op + "" + self.f2.ViewF() + ")"
 
     def ChangeF1(self, f):
         self.f1 = f
@@ -160,7 +176,8 @@ class ComplexFunction(Function):
         return self.depth
 
     def UpdateDepth(self):
-        self.depth = max(self.f1.Depth(), self.f2.Depth()) + 1
+        self.depth = max(self.f1.UpdateDepth(), self.f2.UpdateDepth()) + 1
+        return self.depth
 
     def F1(self):
         return self.f1
@@ -173,4 +190,5 @@ class ComplexFunction(Function):
         return self.nodes_below
 
     def UpdateNodesBelow(self):
-        self.nodes_below =  self.f1.NodesBelow() + self.f2.NodesBelow() + 2
+        self.nodes_below =  self.f1.UpdateNodesBelow() + self.f2.UpdateNodesBelow() + 2
+        return self.nodes_below

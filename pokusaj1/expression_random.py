@@ -8,14 +8,14 @@ import parametri
 p = parametri.grow_vrv()
 
 def generisi_random_op():
-    op_broj = random.randint(0,4)
-    if op_broj == 0:
+    op_broj = random.uniform(0,5)
+    if op_broj < 1:
         return "+"
-    elif op_broj == 1:
+    elif op_broj < 2:
         return "-"
-    elif op_broj == 2:
+    elif op_broj < 3:
         return "*"
-    elif op_broj == 3:
+    elif op_broj < 4:
         return "/"
     return "o"
 
@@ -66,8 +66,6 @@ def grow_metoda(dubina):
     else:
         glavna.ChangeF2(generisi_random_funkciju())
 
-    glavna.UpdateDepth()
-    glavna.UpdateNodesBelow()
 
     return  glavna
 
@@ -86,10 +84,9 @@ def full_metoda(dubina):
     else:
         glavna = klase.ComplexFunction(generisi_random_funkciju(), generisi_random_funkciju(), generisi_random_op())
 
-    glavna.UpdateDepth()
-    glavna.UpdateNodesBelow()
-
     return glavna
+
+
 
 
 
