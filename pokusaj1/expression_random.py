@@ -6,6 +6,7 @@ import time
 import parametri
 
 p = parametri.grow_vrv()
+max_dubina = parametri.max_dubina()
 
 def generisi_random_op():
     op_broj = random.uniform(0,5)
@@ -20,16 +21,16 @@ def generisi_random_op():
     return "o"
 
 def generisi_random_funkciju():
-    broj = random.randint(0, 7)
-    if broj <= 2:
+    broj = random.randint(0, 6)
+    if broj <= 1:
         return klase.Constant(f.random_broj())
-    elif broj  <= 3:
+    elif broj  <= 2:
         return klase.Variable()
-    elif broj == 4:
+    elif broj == 3:
         return klase.Logarithm(f.random_broj())
-    elif broj == 5:
+    elif broj == 4:
         return klase.NRoot(f.random_broj())
-    elif broj == 6:
+    elif broj == 5:
         return klase.Exponential(f.random_broj())
 
     broj = random.randint(0, 3)
@@ -45,27 +46,16 @@ def generisi_random_funkciju():
 # ovo je grow metod
 def grow_metoda(dubina):
     global p
-    dubina -= 1
+    glavna = klase.ComplexFunction(generisi_random_funkciju(), generisi_random_funkciju(), generisi_random_op())
 
-    glavna = klase.ComplexFunction(1, 1, generisi_random_op())
+    if dubina <= 1:
+        return generisi_random_funkciju()
 
-    if dubina == 0:
-        nastavlja_se = False
-    else:
-        nastavlja_se = True
+    if random.uniform(0,1) < p:
+        glavna.ChangeF1(grow_metoda(dubina-1))
 
-    if random.uniform(0,1) < p and nastavlja_se:
-        glavna.ChangeF1(grow_metoda(dubina))
-        nastavlja_se = True
-    else:
-        glavna.ChangeF1(generisi_random_funkciju())
-
-    if random.uniform(0,1) < p and nastavlja_se:
-        glavna.ChangeF2(grow_metoda(dubina))
-        nastavlja_se = True
-    else:
-        glavna.ChangeF2(generisi_random_funkciju())
-
+    if random.uniform(0,1) < p:
+        glavna.ChangeF2(grow_metoda(dubina-1))
 
     return  glavna
 

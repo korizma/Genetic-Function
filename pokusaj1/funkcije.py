@@ -74,12 +74,15 @@ def fitness_povecavanje(funkcija, grafik):
         dy = funkcija.getValue(x)
         if math.isnan(dy) and math.isnan(y):
             skor += 0
-        elif math.isnan(dy) and not math.isnan(y):
+        elif (math.isnan(dy) and not math.isnan(y)) or (not math.isnan(dy) and math.isnan(y)):
             br_nana += 1
         else:
             skor += abs(dy - y) ** 2
 
     skor = math.sqrt(skor / (len(grafik)-br_nana))
+    if skor == 0 and br_nana != 0:
+        skor = 1000000
+        return skor
     for i in (0, br_nana, na_koliko_tacaka):
         skor *= povecanje
     return skor
@@ -107,7 +110,10 @@ def populacija_half_half():
     return populacija
 
 
-
+def klemp(vrednost, manje, vece):
+    if vrednost <= manje or vrednost >= vece:
+        return float('NaN')
+    return vrednost
 
 
 

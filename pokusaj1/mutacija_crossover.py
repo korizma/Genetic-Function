@@ -7,36 +7,19 @@ import expression_random as er
 import copy
 import parametri
 import time
+import ispis_logova as il
+import funkcije
 
 max_dubina = parametri.max_dubina()
 mutacija_posto = parametri.mutacija_posto()
+velicina_populacije = parametri.velicina_populacije()
+procenat_top_jedinki = parametri.procenat_top_jedinki()
+max_odstupanje = parametri.max_odstupanje()
 
-def mutacija_rnd_tree(root, broj_koraka, max_depth_rnd_drveta):
-    vf1 = root.F1().NodesBelow() + 1
-    vf2 = root.F2().NodesBelow() + 1
-    vrv = vf1 /(vf1+vf2)
 
-    rnd_br = rd.uniform(0,1)
 
-    if broj_koraka == 1:
-        if rnd_br < vrv:
-            root.ChangeF1(er.grow_metoda(max_depth_rnd_drveta-1))             #ovde ide random f_ja
-            return
-        else:
-            root.ChangeF2(er.grow_metoda(max_depth_rnd_drveta-1))             #ovde ide random f_ja
-            return
 
-    if rnd_br < vrv:
-        if type(root.F1()) == type(klase.ComplexFunction(1,1,1)):
-            mutacija_rnd_tree(root.F1(), broj_koraka-1, max_depth_rnd_drveta-1)
-        else:
-            root.ChangeF1(er.generisi_random_funkciju())
-    else:
-        if type(root.F2()) == type(klase.ComplexFunction(1, 1, 1)):
-            mutacija_rnd_tree(root.F2(), broj_koraka - 1, max_depth_rnd_drveta - 1)
-        else:
-            root.ChangeF2(er.generisi_random_funkciju())
-
+# vraca drvo koje je mutirano na nacin koji izabere random noud i na njemu upise random drvo tako da ne predje dubinu originalnog drveta
 def mutacija_boljaaa_suii(root):
     d = root.Depth()
     br_k = int(rd.uniform(0, d)+1)
@@ -44,16 +27,43 @@ def mutacija_boljaaa_suii(root):
     f = sve[0]
     br_g = sve[1]
 
+    do_dubine = max_dubina - br_k - 1
+    # do_dubine = max(f.Depth()-1, d - br_k - 1)
+    k = er.grow_metoda(do_dubine)
+
     if br_g == 1:
-        f.ChangeF1(er.grow_metoda(d-br_k))
+        f.ChangeF1(k)
     elif br_g == 2:
-        f.ChangeF2(er.grow_metoda(f.Depth()-1))
+        f.ChangeF2(k)
+
 
     root.UpdateNodesBelow()
     root.UpdateDepth()
-
+    if root.Depth() > max_dubina:
+        return float('NaN')
     return root
 
+# vraca kopiju random poddrveta kao jedinku
+def mutacija_poddrvo_jedinka(root):
+    nesto = vrati_random_node(root, int(rd.uniform(0, root.Depth())))
+    broj = nesto[1]
+    roditelj = nesto[0]
+
+    if broj == 1:
+        return roditelj.F1().Kopija()
+
+    return roditelj.F2().Kopija()
+
+# promeni sve parametre na random brojeve
+def mutacija_randomizacija_svih_parametara(root):
+    if type(root) != type(klase.ComplexFunction(1,1,1)):
+        root.PromenaPara(funkcije.random_broj())
+        return
+
+    mutacija_randomizacija_svih_parametara(root.F1())
+    mutacija_randomizacija_svih_parametara(root.F2())
+
+# vraca roditelja tog nouda i da li je f1 ili f2
 def vrati_random_node(root, broj_koraka):
     vf1 = root.F1().NodesBelow() + 1
     vf2 = root.F2().NodesBelow() + 1
@@ -69,7 +79,7 @@ def vrati_random_node(root, broj_koraka):
 
     if rnd_broj < vrv:
         if type(root.F1()) == type(klase.ComplexFunction(1, 1, 1)):
-            return vrati_random_node(root.F1(), broj_koraka-1)
+            return vrati_random_node(root.F1(), broj_koraka - 1)
         else:
             return [root, 1]
     else:
@@ -78,8 +88,8 @@ def vrati_random_node(root, broj_koraka):
         else:
             return [root, 2]
 
+# zameni dva poddrva tako da nijedna novo napravljena jedina ne predje dubinu roditelja
 def crossover_drva(root1, root2):
-    global max_dubina
     d1 = root1.Depth()
     d2 = root2.Depth()
 
@@ -132,17 +142,16 @@ def rulet_mutacija_crossover(ftns, broj_jedinki):
     br_m = int(broj_jedinki*mutacija_posto)
     br_c = broj_jedinki - br_m
 
-    suma = sum((max_dubina/i) for i in ftns["fitness"])
-    print(suma)
-    start = time.time()
+    suma = sum((max_odstupanje - i) for i in ftns["fitness"])
+
     for i in range(br_m):
         tree = random_index_wheel(ftns, suma)     #dasdasdasdsa
-        tree = mutacija_boljaaa_suii(tree)
-        new_pop.append(tree)
+        mutirano = float("NaN")
+        while type(mutirano) != type(klase.ComplexFunction(1,1,1)):
+            mutirano = mutacija_boljaaa_suii(tree)
+        new_pop.append(mutirano.Kopija())
 
-    print("mutiranje je trajalo: " + str(time.time() - start) + "s")
 
-    start = time.time()
 
     while br_c != 0:
         tree1 = random_index_wheel(ftns, suma)    #dasdasdasdsa
@@ -153,18 +162,71 @@ def rulet_mutacija_crossover(ftns, broj_jedinki):
 
         sve = crossover_drva(d1, d2)
         for i in sve:
-            new_pop.append(i)
-        br_c -= 1
+            new_pop.append(i.Kopija())
+            br_c -= 1
+    return new_pop
 
-    print("crossover je trajao: " + str(time.time() - start) + "s")
-    return new_pop[0:broj_jedinki]
-
+# izabera random funkciju iz populacije i ako je u top jedinikama vrati njihovu kopiju
 def random_index_wheel(ftns, s):
     r = rd.uniform(0,s)
     rx = 0
+    pom = 0
     for i in range(0, len(ftns["func"])):
-        rx += max_dubina/ftns["fitness"][i]
+        rx += max_odstupanje - ftns["fitness"][i]
         if rx >= r:
-            fff = ftns['func'][i]
-            return fff
+            f = ftns['func'][i]
+            pom = i
+
+    if i < velicina_populacije * procenat_top_jedinki:
+        return kopija(f)
+    return f
+
+def kopija(func):
+    return func.Kopija()
+
+def pravljenje_nove_generacije(populacija, broj_jedinki):
+    new_pop = []
+    br_m = int(broj_jedinki * mutacija_posto)
+    br_c = broj_jedinki - br_m
+
+    suma = sum((max_odstupanje - i) for i in populacija["fitness"])
+
+    random_jedinke = int(br_m * 0.25)
+    random_parametri = int(br_m * 0.25)
+    random_poddrvo_jedinka = int(br_m * 0.25)
+    random_podrvo_randomizuj = int(br_m - 3 * int(br_m * 0.25))
+
+    for i in range(random_jedinke):
+        new_pop.append(er.grow_metoda(max_dubina).Kopija())
+
+    for i in range(random_parametri):
+        tree = random_index_wheel(populacija, suma)
+        mutacija_randomizacija_svih_parametara(tree)
+        new_pop.append(tree.Kopija())
+
+    for i in range(random_poddrvo_jedinka):
+        tree = random_index_wheel(populacija, suma)
+        new_pop.append(mutacija_poddrvo_jedinka(tree).Kopija())
+
+    for i in range(random_podrvo_randomizuj):
+        tree = random_index_wheel(populacija, suma)  # dasdasdasdsa
+        mutirano = float("NaN")
+        while type(mutirano) != type(klase.ComplexFunction(1, 1, 1)):
+            mutirano = mutacija_boljaaa_suii(tree)
+        new_pop.append(mutirano.Kopija())
+
+    while br_c >= 0:
+        tree1 = random_index_wheel(populacija, suma)  # dasdasdasdsa
+        tree2 = random_index_wheel(populacija, suma)  # dasdasdasdsa
+
+        d1 = tree1
+        d2 = tree2
+
+        sve = crossover_drva(d1, d2)
+        for i in sve:
+            new_pop.append(i.Kopija())
+            br_c -= 1
+
+    return new_pop
+
 
