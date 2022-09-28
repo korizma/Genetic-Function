@@ -5,23 +5,24 @@ import matplotlib.pyplot as plt
 import math
 import parametri
 import pandas as pd
+import funkcije as f
 
-path = "C:\\Users\\Dušan\\Documents\\Petnica\\RAC2\\ActualProjekat2022\\2022\\logs\\2.13\\"
-# path = "C:\\Users\\Korizma\\Documents\\SVA INFORMATIKA NAJVEROVATINJE\\petnica\\RAC2\\ActualActualProjekt2022\\logs\\2.5\\"
+# path = "C:\\Users\\Dušan\\Documents\\Petnica\\RAC2\\ActualProjekat2022\\2022\\logs\\2.13\\"
+path = "C:\\Users\\Korizma\\Documents\\SVA INFORMATIKA NAJVEROVATINJE\\petnica\\RAC2\\ActualActualProjekt2022\\logs\\2.5\\"
 
 max_odstupanje = parametri.max_odstupanje()
 
 def log(poruke, ime):
     global path
-    file = open(path + ime + ".log", 'a')
+    file = open(path + ime + '\n'+ ".log", 'a')
 
     file.write(str(poruke))
     file.close()
 
 def plotuj_fitnese(fitness, generacija):
-    ceo_path = path + "fitness\\" + str(generacija) + "_plot_fitnessa.jpg"
+    ceo_path = path + "fitness\\" + str(generacija) + "_hist_fitnessa.jpg"
     plt.clf()
-    plot = fitness.plot()
+    plot = plt.hist(fitness)
     fig = plot.get_figure()
     fig.savefig(ceo_path)
 
@@ -105,4 +106,18 @@ def plot_roditelje_xd(df, niz_roditelja, generacija):
     ndf = pd.DataFrame(ndf, columns=["roditelji", "broj_dece", "pozicija"])
     ndf.to_csv(path + "roditelji\\" + str(generacija) + "_roditelji.csv")
 
+def poredjenje_trazene_jedinki(trazena, trenutna):
+    n = 0
+    x = -300
+    korak = 0.1
+    grafik = []
+    while x < -100:
+        grafik += [x, trazena.GetValue()]
+        x += korak
 
+    x = 100
+    while x <= 300:
+        x += korak
+        grafik += [x, trazena.GetValue]
+
+    return f.fitness_odstupanje(trenutna, grafik)

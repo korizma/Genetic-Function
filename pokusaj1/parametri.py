@@ -14,7 +14,7 @@ posto_grow_populacije1 = 0.5
 mutacija_posto1 = 0.4
 
 kriterijum_za_stajanje1 = 0.01
-max_generacija1 = 2000
+max_generacija1 = 500
 procenat_top_jedinki1 = 0.5
 
 sansa_promene_trigonometrije1 = 0.5
