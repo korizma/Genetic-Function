@@ -25,19 +25,18 @@ max_generacija = parametri.max_generacija()
 # </editor-fold>
 
 # <editor-fold desc="kreiranje trazene f-je i cuvanje grafika">
-uk_broj_tacaka = 1000
-broj_nedefinisanih = 1000
-while broj_nedefinisanih > uk_broj_tacaka * 0.5:
-    broj_nedefinisanih = 0
-    funkcija_trazena = er.grow_metoda(max_dubina)
-    grafik = []
-    x = -200
-    for i in range(uk_broj_tacaka):
-        p = funkcija_trazena.getValue(x)
-        grafik.append([x, p])
-        if math.isnan(p):
-            broj_nedefinisanih += 1
-        x += 0.5
+broj_nedefinisanih = 0
+n = 0
+funkcija_trazena = er.grow_metoda(max_dubina)
+grafik = []
+x = -100
+for i in range(uk_broj_tacaka):
+    p = funkcija_trazena.getValue(x)
+    grafik.append([x, p])
+    if math.isnan(p):
+        broj_nedefinisanih += 1
+    x += 0.5
+    n += 1
 
 il.trazena_fja(funkcija_trazena)                      # cuvamo funkciju i x tacke
 # </editor-fold>
@@ -68,8 +67,21 @@ while ostani and max_generacija >= generacija:
     il.zapisi_jedinke_csv(df, generacija)
     il.zapisi_sve_csv(df, generacija)
 
-    if df["fitness"][0] < kriterijum_za_stajanje:
+    if df["fitness"][0] < kriterijum_za_stajanje or max_generacija == generacija:
         break
 
     populacija = mc.totalno_nova_generacija(df, generacija)
+
+for i in range(10):
+    il.log("fitness " + str(i) + "-te na kraju je: " + str(il.poredjenje_trazene_jedinki(funkcija_trazena, populacija[i]['funkcija'])), "fitness_van_tacaka")
+il.log("Nedefinisanih tacaka je bilo " + str(broj_nedefinisanih) + " od " + str(n) + " tacaka", "nedefinisane")
+x = -100
+korak = 0.5
+for i in range(10):
+    fned = 0
+    while x <= -100:
+        if math.isnan(populacija[i]['funkcija'].GetValue()):
+            fned += 1
+    il.log("Nedefinisanih tacaka je bilo " + str(broj_nedefinisanih) + " od " + str(n) + " tacaka za funkciju na mestu " + str(i+1), "nedefinisane")
+
 
