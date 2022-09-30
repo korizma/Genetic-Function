@@ -85,14 +85,14 @@ class Exponential(Function):
         self.base = abs(round(base, 3))
 
     def getValue(self, x):
-        if x < 0:
-            return float('NaN')
-
-        elif x == 0 and self.base == 0:
+        if x == 0 and self.base == 0:
             return float('NaN')
 
         if x > exp_granica:
             x = exp_granica
+
+        if x < -exp_granica:
+            x = -exp_granica
 
         return f.klemp(self.base ** x, -granica, granica)
 

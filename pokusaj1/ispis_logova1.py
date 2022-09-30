@@ -8,23 +8,22 @@ import pandas as pd
 import funkcije as f
 
 # path = "C:\\Users\\Dušan\\Documents\\Petnica\\RAC2\\ActualProjekat2022\\2022\\logs\\2.13\\"
-path = "C:\\Users\\Korizma\\Documents\\SVA INFORMATIKA NAJVEROVATINJE\\petnica\\RAC2\\ActualActualProjekt2022\\logs\\2.5\\"
+path = "C:\\Users\\Korizma\\Documents\\SVA INFORMATIKA NAJVEROVATINJE\\petnica\\RAC2\\ActualActualProjekt2022\\logs\\1.2\\"
 
 max_odstupanje = parametri.max_odstupanje()
 
 def log(poruke, ime):
     global path
-    file = open(path + ime + '\n'+ ".log", 'a')
+    file = open(path + ime + ".log", 'a')
 
-    file.write(str(poruke))
+    file.write(str(poruke)+ '\n')
     file.close()
 
 def plotuj_fitnese(fitness, generacija):
     ceo_path = path + "fitness\\" + str(generacija) + "_hist_fitnessa.jpg"
     plt.clf()
-    plot = plt.hist(fitness)
-    fig = plot.get_figure()
-    fig.savefig(ceo_path)
+    plt.hist(fitness)
+    plt.savefig(ceo_path)
 
 def sacuvaj_top_10_klase(df, generacija):
     ceo_path = path + "top jedinke\\" + str(generacija) + "_top_10_generacije.csv"

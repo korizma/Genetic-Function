@@ -22,7 +22,7 @@ nv_centar1 = 0
 nv_lamba1 = 3
 verovatnoca_mutacija1 = 0.6
 
-k1 = 0.5
+k1 = 0.35
 vrv_operacija1 = 0.6
 
 # <editor-fold desc="Description">

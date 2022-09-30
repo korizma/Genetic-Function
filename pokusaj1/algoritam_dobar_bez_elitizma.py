@@ -30,7 +30,7 @@ n = 0
 funkcija_trazena = er.grow_metoda(max_dubina)
 grafik = []
 x = -100
-for i in range(uk_broj_tacaka):
+while x <= 100:
     p = funkcija_trazena.getValue(x)
     grafik.append([x, p])
     if math.isnan(p):
