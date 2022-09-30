@@ -87,6 +87,8 @@ class Exponential(Function):
     def getValue(self, x):
         if x == 0 and self.base == 0:
             return float('NaN')
+        elif x < 0 and self.base < 0.1:
+            return float('NaN')
 
         if x > exp_granica:
             x = exp_granica

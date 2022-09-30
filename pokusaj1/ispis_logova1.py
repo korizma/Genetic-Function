@@ -8,7 +8,7 @@ import pandas as pd
 import funkcije as f
 
 # path = "C:\\Users\\Dušan\\Documents\\Petnica\\RAC2\\ActualProjekat2022\\2022\\logs\\2.13\\"
-path = "C:\\Users\\Korizma\\Documents\\SVA INFORMATIKA NAJVEROVATINJE\\petnica\\RAC2\\ActualActualProjekt2022\\logs\\1.2\\"
+path = "C:\\Users\\Korizma\\Documents\\SVA INFORMATIKA NAJVEROVATINJE\\petnica\\RAC2\\ActualActualProjekt2022\\logs\\1.1\\"
 
 max_odstupanje = parametri.max_odstupanje()
 

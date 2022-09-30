@@ -47,7 +47,7 @@ def totalno_nova_generacija(df, generacija):
     #     suma_vrv += h
     #     h /= k
 
-    vrv_c = 0 + standard_deviation/50 * 0.25
+    vrv_c = 0 + standard_deviation/50 * 0.18
     vrv_m = 1 - standard_deviation/50 * 0.1
 
     # if standard_deviation < 30:
