@@ -8,7 +8,7 @@ import pandas as pd
 import funkcije as f
 
 # path = "C:\\Users\\Dušan\\Documents\\Petnica\\RAC2\\ActualProjekat2022\\2022\\logs\\2.13\\"
-path = "C:\\Users\\Korizma\\Documents\\SVA INFORMATIKA NAJVEROVATINJE\\petnica\\RAC2\\ActualActualProjekt2022\\logs\\1.1\\"
+path = "C:\\Users\\Korizma\\Documents\\SVA INFORMATIKA NAJVEROVATINJE\\petnica\\RAC2\\ActualActualProjekt2022\\logs\\10\\"
 
 max_odstupanje = parametri.max_odstupanje()
 
@@ -111,12 +111,12 @@ def poredjenje_trazene_jedinki(trazena, trenutna):
     korak = 0.1
     grafik = []
     while x < -100:
-        grafik += [x, trazena.GetValue()]
+        grafik.append([x, trazena.getValue(x)])
         x += korak
 
     x = 100
     while x <= 300:
         x += korak
-        grafik += [x, trazena.GetValue]
+        grafik.append([x, trazena.getValue(x)])
 
     return f.fitness_odstupanje(trenutna, grafik)

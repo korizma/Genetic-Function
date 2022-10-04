@@ -73,15 +73,16 @@ while ostani and max_generacija >= generacija:
     populacija = mc.totalno_nova_generacija(df, generacija)
 
 for i in range(10):
-    il.log("fitness " + str(i) + "-te na kraju je: " + str(il.poredjenje_trazene_jedinki(funkcija_trazena, df[i]['funkcija'])), "fitness_van_tacaka")
+    il.log("fitness " + str(i) + "-te na kraju je: " + str(il.poredjenje_trazene_jedinki(funkcija_trazena, df['funkcija'][i])), "fitness_van_tacaka")
 il.log("Nedefinisanih tacaka je bilo " + str(broj_nedefinisanih) + " od " + str(n) + " tacaka", "nedefinisane")
 x = -100
 korak = 0.5
 for i in range(10):
     fned = 0
     while x <= -100:
-        if math.isnan(df[i]['funkcija'].GetValue()):
+        if math.isnan(df['funkcija'][i].getValue(x)):
             fned += 1
+        x += korak
     il.log("Nedefinisanih tacaka je bilo " + str(broj_nedefinisanih) + " od " + str(n) + " tacaka za funkciju na mestu " + str(i+1), "nedefinisane")
 
 
